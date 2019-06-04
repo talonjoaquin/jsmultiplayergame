@@ -13,12 +13,16 @@ var ais = [];
 var rifle = {
     reload: 3,
     damage: 4,
-    speed: 1.2,
-    range: 100
+    speed: 1.1,
+    range: 100,
+    bulletsize: 1,
+    bullettrail: 8,
+    kickback: 2
 };
 
 var cspeedmod = 1.5;
 var playerspeed = 0.08 * cspeedmod;
+var speedlim = 4;
 var npspeed = 0.05 * cspeedmod;
 var NPCLIM = 100;
 var aggroRange = 150000;
@@ -114,8 +118,10 @@ setInterval(function(){
             npc.x += Math.cos(angleToPlayer) * npspeed * timeDifference * proximitySpeedCoeff * npc.speedCoeff;
             npc.y += Math.sin(angleToPlayer) * npspeed * timeDifference * proximitySpeedCoeff * npc.speedCoeff;
             if(distToPlayer <= 16){
-                chasedPlayer.health -= 0.1 * timeDifference;
+                chasedPlayer.health -= 1 * timeDifference;
                 chasedPlayer.speedCoeff = 0.25;
+                chasedPlayer.pushx += Math.cos(angleToPlayer) * 4;
+                chasedPlayer.pushy += Math.sin(angleToPlayer) * 4;
                 if(chasedPlayer.health <= 0){
                     delete players[playerId];
                 }
@@ -140,23 +146,8 @@ setInterval(function(){
     }
     for (var id in players){
         var player = players[id];
-        player.speedCoeff += (1.0 - player.speedCoeff) / 10;
-        player.pushx *= 0.9;
-        player.pushy *= 0.9;
-        if(player.left){
-            player.x -= playerspeed * timeDifference * player.speedCoeff;
-        }
-        if(player.right){
-            player.x += playerspeed * timeDifference * player.speedCoeff;
-        }
-        if(player.up){
-            player.y -= playerspeed * timeDifference * player.speedCoeff;
-        }
-        if(player.down){
-            player.y += playerspeed * timeDifference * player.speedCoeff;
-        }
-        player.x += player.pushx;
-        player.y += player.pushy;
+        
+        
         for (var b = 0; b < player.bullets.length; b++){
             var bullet = player.bullets[b];
             if(bullet == undefined){
@@ -185,16 +176,47 @@ setInterval(function(){
                     y: 0,
                     speed: player.gun.speed,
                     lifetime: player.gun.range,
-                    flash: 1
+                    flash: 2
                 };
                 bullet.x = player.x + Math.cos(bullet.ang) * 8;
                 bullet.y = player.y + Math.sin(bullet.ang) * 8;
                 player.bullets.push(bullet);
+                player.pushx -= Math.cos(bullet.ang) * player.gun.kickback;
+                player.pushy -= Math.sin(bullet.ang) * player.gun.kickback;
                 player.shotcycle = player.gun.reload;
             }else{
                 player.shotcycle--;
             }
         }
+        if(player.pushx > speedlim){
+            player.pushx = speedlim;
+        }
+        if(player.pushx < -1 * speedlim){
+            player.pushx = -1 * speedlim;
+        }
+        if(player.pushy > speedlim){
+            player.pushy = speedlim;
+        }
+        if(player.pushy < -1 * speedlim){
+            player.pushy = -1 * speedlim;
+        }
+        player.speedCoeff += (1.0 - player.speedCoeff) / 10;
+        player.pushx *= 0.99;
+        player.pushy *= 0.99;
+        if(player.left){
+            player.x -= playerspeed * timeDifference * player.speedCoeff;
+        }
+        if(player.right){
+            player.x += playerspeed * timeDifference * player.speedCoeff;
+        }
+        if(player.up){
+            player.y -= playerspeed * timeDifference * player.speedCoeff;
+        }
+        if(player.down){
+            player.y += playerspeed * timeDifference * player.speedCoeff;
+        }
+        player.x += player.pushx;
+        player.y += player.pushy;
     }
 
     actors = {

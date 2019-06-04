@@ -73,7 +73,6 @@ var sizeMod = 1.2;
 var playerSize = 4 * sizeMod;
 var actorSize = 4 * sizeMod;
 
-var bullettrail = 10;
 
 socket.on('state', function(actors){
     context.clearRect(0, 0, 1400, 900);
@@ -105,29 +104,50 @@ socket.on('state', function(actors){
             var bullet = player.bullets[b];
             console.log(bullet.flash);
             if(bullet.flash > 0){
-                context.globalAlpha = 0.8;
                 context.fillStyle = 'white';
+                context.globalAlpha = 1.0;
                 context.beginPath();
-                context.arc(bullet.x, bullet.y, 6 * sizeMod, 0, 2 * Math.PI);
+                context.arc(player.x + Math.cos(bullet.ang) * 8 * sizeMod, player.y + Math.sin(bullet.ang) * 8 * sizeMod, 3 * sizeMod, 0, 2 * Math.PI);
                 context.fill();
-                context.globalAlpha = 0.4;
+                context.globalAlpha = 0.6;
                 context.beginPath();
-                context.arc(bullet.x, bullet.y, 8 * sizeMod, 0, 2 * Math.PI);
+                context.arc(player.x + Math.cos(bullet.ang) * 8 * sizeMod, player.y + Math.sin(bullet.ang) * 8 * sizeMod, 6 * sizeMod, 0, 2 * Math.PI);
+                context.fill();
+                context.globalAlpha = 0.2;
+                context.beginPath();
+                context.arc(player.x + Math.cos(bullet.ang) * 8 * sizeMod, player.y + Math.sin(bullet.ang) * 8 * sizeMod, 10 * sizeMod, 0, 2 * Math.PI);
                 context.fill();
                 context.globalAlpha = 1.0;
             }else{
-                context.fillStyle = 'yellow';
-                for(var i = 0; i < bullettrail; i++){
-                    context.globalAlpha = 1 - i / bullettrail;
+                
+                
+                
+                
+                for(var i = 0; i < player.gun.bullettrail; i++){
+                   
+                    context.fillStyle = 'orange';
+                    context.globalAlpha = 0.6;
                     context.beginPath();
-                    context.arc(bullet.x - Math.cos(bullet.ang) * i * 2 * sizeMod, bullet.y - Math.sin(bullet.ang) * i * 2 * sizeMod, 3 * sizeMod, 0, 2 * Math.PI);
+                    context.arc(bullet.x - Math.cos(bullet.ang) * i * 2 * sizeMod, bullet.y - Math.sin(bullet.ang) * i * 2 * sizeMod, 4 * sizeMod * (0.8 + 0.2 * (1.0)), 0, 2 * Math.PI);
+                    context.fill();
+                    
+                }
+
+                for(var i = 0; i < player.gun.bullettrail; i++){
+                    context.fillStyle = 'yellow';
+                    context.globalAlpha = 1.0;
+                    context.beginPath();
+                    context.arc(bullet.x - Math.cos(bullet.ang) * i * 2 * sizeMod, bullet.y - Math.sin(bullet.ang) * i * 2 * sizeMod, 1 * sizeMod * (0.8 + 0.2 * (1.0)) * player.gun.bulletsize, 0, 2 * Math.PI);
                     context.fill();
                 }
-                context.fillStyle = 'white';
-                context.globalAlpha = 0.2;
+                /*context.fillStyle = 'white';
+                context.globalAlpha = 0.6;
                 context.beginPath();
-                context.arc(bullet.x, bullet.y, 6 * sizeMod, 0, 2 * Math.PI);
+                context.arc(bullet.x, bullet.y, 2 * sizeMod, 0, 2 * Math.PI);
                 context.fill();
+                context.globalAlpha = 0.3;
+                context.arc(bullet.x, bullet.y, 6 * sizeMod, 0, 2 * Math.PI);
+                context.fill();*/
                 context.globalAlpha = 1.0;
             }
         }
