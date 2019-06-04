@@ -62,12 +62,16 @@ socket.on('state', function(actors){
     context.clearRect(0, 0, 1400, 900);
     context.fillStyle = 'slategray';
     context.fillRect(0, 0, 1400, 900);
-    context.fillStyle = 'lightpink';
     for (var id in actors.pcs){
+        context.fillStyle = 'lightpink';
         var player = actors.pcs[id];
         context.beginPath();
         context.arc(player.x, player.y, playerSize, 0, 2 * Math.PI);
         context.fill();
+        context.fillStyle = 'red';
+        if(player.health > 0){
+            context.fillRect(player.x - 8, player.y - 8, player.health / 100 * 16, 2);
+        }
     }
     context.fillStyle = 'lightgreen';
     for (var id in actors.npcs){

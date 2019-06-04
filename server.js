@@ -46,6 +46,7 @@ io.on('connection', function(socket){
             right: false,
             up: false,
             down: false,
+            health: 100,
             active: false
         };
     });
@@ -82,6 +83,9 @@ setInterval(function(){
             var proximitySpeedCoeff = Math.max(0, (aggroRange - distToPlayer)/aggroRange);
             npc.x += Math.cos(angleToPlayer) * npspeed * timeDifference * proximitySpeedCoeff;
             npc.y += Math.sin(angleToPlayer) * npspeed * timeDifference * proximitySpeedCoeff;
+            if(distToPlayer <= 4){
+                player.health -= 10;
+            }
         }else{
             if(npc.wanderlust > 0){
                 npc.wanderlust--;
