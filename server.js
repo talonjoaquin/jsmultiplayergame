@@ -11,7 +11,7 @@ var actors = {};
 var players = {};
 var ais = {};
 
-var playerspeed = 5;
+var playerspeed = 0.1;
 var NPCLIM = 10;
 
 app.set('port', 5000);
@@ -54,10 +54,28 @@ io.on('connection', function(socket){
     });
 });
 
+var lastUpdateTime = (new Date()).getTime();
+
 setInterval(function(){
     //update state
+    var currentTime = (new Date()).getTime(); 
+    var timeDifference = currentTime - lastUpdateTime;
 
-
+    for (var id in players){
+        var player = players[id];
+        if(player.left){
+            player.x -= playerspeed * timeDifference;
+        }
+        if(player.right){
+            player.x += playerspeed * timeDifference;
+        }
+        if(player.up){
+            player.y -= playerspeed * timeDifference;
+        }
+        if(player.down){
+            player.y += playerspeed * timeDifference;
+        }
+    }
 
     actors = {
         pcs: players,
@@ -65,4 +83,5 @@ setInterval(function(){
     }
     io.sockets.emit('state', actors);
     //console.log(actors);
+    lastUpdateTime = currentTime;
 }, 1000 / 60);
