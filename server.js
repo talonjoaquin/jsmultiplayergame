@@ -11,14 +11,15 @@ var actors = {};
 var players = {};
 var ais = [];
 var rifle = {
-    reload: 5,
+    reload: 3,
     damage: 4,
     speed: 1.2,
     range: 100
 };
 
-var playerspeed = 0.08;
-var npspeed = 0.05;
+var cspeedmod = 1.5;
+var playerspeed = 0.08 * cspeedmod;
+var npspeed = 0.05 * cspeedmod;
 var NPCLIM = 100;
 var aggroRange = 150000;
 
@@ -103,6 +104,7 @@ setInterval(function(){
                 chasedPlayer = player;
                 playerId = pid;
             }
+            
         }
         npc.speedCoeff += (1.0 - npc.speedCoeff) / 20;
         if(chasedPlayer != undefined && distToPlayer < aggroRange){
@@ -157,33 +159,36 @@ setInterval(function(){
         player.y += player.pushy;
         for (var b = 0; b < player.bullets.length; b++){
             var bullet = player.bullets[b];
-            if(bullet.lifetime > 0){
-                bullet.x += Math.cos(bullet.ang) * bullet.speed * timeDifference;
-                bullet.y += Math.sin(bullet.ang) * bullet.speed * timeDifference;
-                bullet.lifetime--;
-            }
-            if(bullet.lifetime <= 0){
-                delete player.bullets[b];
-            }
-        }
-        for (var b = 0; b < player.bullets.length; b++){
-            var bullet = player.bullets[b];
             if(bullet == undefined){
                 player.bullets.splice(b, 1);
                 b--;
             }
         }
+        for (var b = 0; b < player.bullets.length; b++){
+            var bullet = player.bullets[b];
+            if(bullet.lifetime > 0){
+                bullet.x += Math.cos(bullet.ang) * bullet.speed * timeDifference;
+                bullet.y += Math.sin(bullet.ang) * bullet.speed * timeDifference;
+                bullet.lifetime--;
+                bullet.flash--;
+            }
+            if(bullet.lifetime <= 0){
+                delete player.bullets[b];
+            }
+        }
+        
         if(player.clicked){
             if (player.shotcycle == 0){
                 var bullet = {
-                    ang: Math.atan2(player.mousey - player.y, player.mousex - player.x),
+                    ang: Math.atan2(player.mousey - player.y, player.mousex - player.x) + Math.random() * Math.PI / 8 - Math.random() * Math.PI / 8,
                     x: 0,
                     y: 0,
                     speed: player.gun.speed,
-                    lifetime: player.gun.range
+                    lifetime: player.gun.range,
+                    flash: 1
                 };
-                bullet.x = player.x + Math.cos(bullet.ang) * 4;
-                bullet.y = player.y + Math.cos(bullet.ang) * 4;
+                bullet.x = player.x + Math.cos(bullet.ang) * 8;
+                bullet.y = player.y + Math.sin(bullet.ang) * 8;
                 player.bullets.push(bullet);
                 player.shotcycle = player.gun.reload;
             }else{
