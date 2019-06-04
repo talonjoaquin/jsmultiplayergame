@@ -31,6 +31,7 @@ for (var i = 0; i < NPCLIM; i++){
     ais[i] = {
         x: Math.floor(Math.random() * 1400),
         y: Math.floor(Math.random() * 900),
+        speedCoeff: 1.0,
         wanderlust: 0,
         wanderang: 0
     }
@@ -77,24 +78,26 @@ setInterval(function(){
                 chasedPlayer = player;
             }
         }
+        npc.speedCoeff += (1.0 - npc.speedCoeff) / 20;
         if(chasedPlayer != undefined && distToPlayer < aggroRange){
             npc.wanderlust = 0;
             var angleToPlayer = Math.atan2((chasedPlayer.y - npc.y), (chasedPlayer.x - npc.x));
             var proximitySpeedCoeff = Math.max(0, (aggroRange - distToPlayer)/aggroRange);
-            npc.x += Math.cos(angleToPlayer) * npspeed * timeDifference * proximitySpeedCoeff;
-            npc.y += Math.sin(angleToPlayer) * npspeed * timeDifference * proximitySpeedCoeff;
+            npc.x += Math.cos(angleToPlayer) * npspeed * timeDifference * proximitySpeedCoeff * npc.speedCoeff;
+            npc.y += Math.sin(angleToPlayer) * npspeed * timeDifference * proximitySpeedCoeff * npc.speedCoeff;
             if(distToPlayer <= 4){
                 player.health -= 10;
+                npc.speedCoeff = 0.01;
             }
         }else{
             if(npc.wanderlust > 0){
                 npc.wanderlust--;
-                npc.x += Math.cos(npc.wanderang) * npspeed * timeDifference * 0.25;
-                npc.y += Math.sin(npc.wanderang) * npspeed * timeDifference * 0.25;
-                if(npc.x > 1400 || npc.x < 0){
+                npc.x += Math.cos(npc.wanderang) * npspeed * timeDifference * 0.25 * npc.speedCoeff;
+                npc.y += Math.sin(npc.wanderang) * npspeed * timeDifference * 0.25 * npc.speedCoeff;
+                if(npc.x > 1600 || npc.x < -200){
                     npc.wanderang = Math.PI - npc.wanderang;
                 }
-                if(npc.y > 900 || npc.y < 0){
+                if(npc.y > 1100 || npc.y < -200){
                     npc.wanderang = Math.PI * 2 - npc.wanderang;
                 }
             }else{
