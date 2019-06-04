@@ -11,19 +11,34 @@ var actors = {};
 var players = {};
 var ais = [];
 var rifle = {
-    reload: 3,
+    reload: 4,
     damage: 4,
     speed: 1.1,
     range: 100,
     bulletsize: 1,
     bullettrail: 8,
-    kickback: 2
+    kickback: 2,
+    coneMod: 0,
+    spreadMod: 0
+};
+
+var shotgun = {
+    reload: 40,
+    damage: 20,
+    speed: 2,
+    range: 12,
+    bulletsize: 4,
+    bullettrail: 10,
+    kickback: 10,
+    coneMod: 1,
+    spreadMod: 1
 };
 
 var cspeedmod = 1.5;
 var playerspeed = 0.08 * cspeedmod;
-var speedlim = 4;
-var npspeed = 0.05 * cspeedmod;
+var speedlim = 6;
+var push = 8;
+var npspeed = 0.1 * cspeedmod;
 var NPCLIM = 100;
 var aggroRange = 150000;
 
@@ -120,8 +135,8 @@ setInterval(function(){
             if(distToPlayer <= 16){
                 chasedPlayer.health -= 1 * timeDifference;
                 chasedPlayer.speedCoeff = 0.25;
-                chasedPlayer.pushx += Math.cos(angleToPlayer) * 4;
-                chasedPlayer.pushy += Math.sin(angleToPlayer) * 4;
+                chasedPlayer.pushx += Math.cos(angleToPlayer) * push;
+                chasedPlayer.pushy += Math.sin(angleToPlayer) * push;
                 if(chasedPlayer.health <= 0){
                     delete players[playerId];
                 }
@@ -132,12 +147,6 @@ setInterval(function(){
                 npc.wanderlust--;
                 npc.x += Math.cos(npc.wanderang) * npspeed * timeDifference * 0.25 * npc.speedCoeff;
                 npc.y += Math.sin(npc.wanderang) * npspeed * timeDifference * 0.25 * npc.speedCoeff;
-                if(npc.x > 1600 || npc.x < -200){
-                    npc.wanderang = Math.PI - npc.wanderang;
-                }
-                if(npc.y > 1100 || npc.y < -200){
-                    npc.wanderang = Math.PI * 2 - npc.wanderang;
-                }
             }else{
                 npc.wanderlust = Math.floor(Math.random() * 1000) + 100;
                 npc.wanderang = Math.random() * 2 * Math.PI;  
@@ -176,13 +185,13 @@ setInterval(function(){
                     y: 0,
                     speed: player.gun.speed,
                     lifetime: player.gun.range,
-                    flash: 2
+                    flash: 3
                 };
                 bullet.x = player.x + Math.cos(bullet.ang) * 8;
                 bullet.y = player.y + Math.sin(bullet.ang) * 8;
                 player.bullets.push(bullet);
-                player.pushx -= Math.cos(bullet.ang) * player.gun.kickback;
-                player.pushy -= Math.sin(bullet.ang) * player.gun.kickback;
+                player.pushx -= Math.cos(bullet.ang) * player.gun.kickback * (0.8 + Math.random() * 0.4);
+                player.pushy -= Math.sin(bullet.ang) * player.gun.kickback * (0.8 + Math.random() * 0.4);
                 player.shotcycle = player.gun.reload;
             }else{
                 player.shotcycle--;
@@ -201,8 +210,8 @@ setInterval(function(){
             player.pushy = -1 * speedlim;
         }
         player.speedCoeff += (1.0 - player.speedCoeff) / 10;
-        player.pushx *= 0.99;
-        player.pushy *= 0.99;
+        player.pushx *= 0.25;
+        player.pushy *= 0.25;
         if(player.left){
             player.x -= playerspeed * timeDifference * player.speedCoeff;
         }
