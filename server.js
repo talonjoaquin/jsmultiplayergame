@@ -48,7 +48,7 @@ io.on('connection', function(socket){
             up: false,
             down: false,
             health: 100,
-            active: false
+            active: 100
         };
     });
     socket.on('movement', function(data){
@@ -58,6 +58,9 @@ io.on('connection', function(socket){
         player.up = data.up;
         player.down = data.down;
     });
+    socket.on('active', function(){
+        players[socket.id].active = 100;
+    })
 });
 
 var lastUpdateTime = (new Date()).getTime();
@@ -66,6 +69,7 @@ setInterval(function(){
     //update state
     var currentTime = (new Date()).getTime(); 
     var timeDifference = currentTime - lastUpdateTime;
+    
     for(var id in ais){
         var npc = ais[id];
         var distToPlayer = Infinity;
@@ -108,6 +112,11 @@ setInterval(function(){
     }
     for (var id in players){
         var player = players[id];
+        if(player.active == 0){
+            delete players[id];
+        }else{
+            player.active--;
+        }
         if(player.left){
             player.x -= playerspeed * timeDifference;
         }
