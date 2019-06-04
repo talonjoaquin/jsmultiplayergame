@@ -14,7 +14,7 @@ var ais = {};
 var playerspeed = 0.1;
 var npspeed = 0.05;
 var NPCLIM = 100;
-var aggroRange = 200000;
+var aggroRange = 150000;
 
 app.set('port', 5000);
 app.use('/static', express.static(__dirname + '/static'));
@@ -48,6 +48,7 @@ io.on('connection', function(socket){
             up: false,
             down: false,
             health: 100,
+            speedCoeff: 1.0,
             active: 100
         };
     });
@@ -59,7 +60,9 @@ io.on('connection', function(socket){
         player.down = data.down;
     });
     socket.on('active', function(){
-        players[socket.id].active = 100;
+        if(players[socket.id] != undefined){
+            players[socket.id].active = 100;
+        }
     })
 });
 
@@ -74,12 +77,14 @@ setInterval(function(){
         var npc = ais[id];
         var distToPlayer = Infinity;
         var chasedPlayer = undefined;
+        var playerId = -1;
         for(var pid in players){
             var player = players[pid];
             var tempDist = (player.x - npc.x)*(player.x - npc.x)+(player.y - npc.y)*(player.y - npc.y);
             if(tempDist < distToPlayer){
                 distToPlayer = tempDist;
                 chasedPlayer = player;
+                playerId = pid;
             }
         }
         npc.speedCoeff += (1.0 - npc.speedCoeff) / 20;
@@ -90,7 +95,11 @@ setInterval(function(){
             npc.x += Math.cos(angleToPlayer) * npspeed * timeDifference * proximitySpeedCoeff * npc.speedCoeff;
             npc.y += Math.sin(angleToPlayer) * npspeed * timeDifference * proximitySpeedCoeff * npc.speedCoeff;
             if(distToPlayer <= 4){
-                player.health -= 10;
+                chasedPlayer.health -= 0.1 * timeDifference;
+                chasedPlayer.speedCoeff = 0.25;
+                if(chasedPlayer.health <= 0){
+                    delete players[playerId];
+                }
                 npc.speedCoeff = 0.01;
             }
         }else{
@@ -117,17 +126,18 @@ setInterval(function(){
         }else{
             player.active--;
         }
+        player.speedCoeff += (1.0 - player.speedCoeff) / 10;
         if(player.left){
-            player.x -= playerspeed * timeDifference;
+            player.x -= playerspeed * timeDifference * player.speedCoeff;
         }
         if(player.right){
-            player.x += playerspeed * timeDifference;
+            player.x += playerspeed * timeDifference * player.speedCoeff;
         }
         if(player.up){
-            player.y -= playerspeed * timeDifference;
+            player.y -= playerspeed * timeDifference * player.speedCoeff;
         }
         if(player.down){
-            player.y += playerspeed * timeDifference;
+            player.y += playerspeed * timeDifference * player.speedCoeff;
         }
     }
 
