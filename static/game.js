@@ -84,7 +84,7 @@ var actorSize = 4 * sizeMod;
 
 socket.on('state', function(actors){
     context.clearRect(0, 0, 1400, 900);
-    context.fillStyle = 'slategray';
+    context.fillStyle = 'lightgrey';
     context.fillRect(0, 0, 1400, 900);
     var me = actors.pcs[meid];
     if(me != undefined){
@@ -102,7 +102,7 @@ socket.on('state', function(actors){
         camera.y += (me.y - 450 - (me.pushy) * 120 - camera.y) * camera.lerp;
     }
     for (var id in actors.npcs){
-        context.fillStyle = 'lightgreen';
+        context.fillStyle = 'slategray';
         var npc = actors.npcs[id];
         context.beginPath();
         context.arc(npc.x - camera.x, npc.y - camera.y, actorSize, 0, 2 * Math.PI);
@@ -154,7 +154,7 @@ socket.on('state', function(actors){
                     context.globalAlpha = 0.6;
                     context.beginPath();
                     //context.arc(bullet.x - Math.cos(bullet.ang) * i * 2 * sizeMod - camera.x, bullet.y - Math.sin(bullet.ang) * i * 2 * sizeMod - camera.y, 4 * sizeMod * (0.8 + 0.2 * (1.0 - player.gun.bullettrail * player.gun.coneMod)) * player.gun.bulletsize * (player.gun.spreadMod * (1.0 + 0.5 * (player.gun.range - bullet.lifetime) / player.gun.range)), 0, 2 * Math.PI);
-                    context.arc(bullet.x - Math.cos(bullet.ang) * i * 2 * sizeMod - camera.x, bullet.y - Math.sin(bullet.ang) * i * 2 * sizeMod - camera.y, 4 * sizeMod * player.gun.bulletsize * ((1.0 + player.gun.spreadMod * 1.5 * (player.gun.range - bullet.lifetime) / player.gun.range)), 0, 2 * Math.PI);
+                    context.arc(bullet.x - Math.cos(bullet.ang) * i * 2 * sizeMod - camera.x, bullet.y - Math.sin(bullet.ang) * i * 2 * sizeMod - camera.y, 4 * sizeMod * player.gun.bulletsize * ((1.0 + player.gun.spreadMod * 1.0 * (player.gun.range - bullet.lifetime) / player.gun.range)), 0, 2 * Math.PI);
                     context.fill();
                 }
 
@@ -163,7 +163,7 @@ socket.on('state', function(actors){
                     context.globalAlpha = 1.0;
                     context.beginPath();
                     //context.arc(bullet.x - Math.cos(bullet.ang) * i * 2 * sizeMod - camera.x, bullet.y - Math.sin(bullet.ang) * i * 2 * sizeMod - camera.y, 1 * sizeMod * (0.8 + 0.2 * (1.0 - player.gun.bullettrail * player.gun.coneMod)) * player.gun.bulletsize * (player.gun.spreadMod * (1.0 + 0.5 * (player.gun.range - bullet.lifetime) / player.gun.range)), 0, 2 * Math.PI);
-                    context.arc(bullet.x - Math.cos(bullet.ang) * i * 2 * sizeMod - camera.x, bullet.y - Math.sin(bullet.ang) * i * 2 * sizeMod - camera.y, 2 * sizeMod * player.gun.bulletsize * ((1.0 + player.gun.spreadMod * 1.5 * (player.gun.range - bullet.lifetime) / player.gun.range)), 0, 2 * Math.PI);
+                    context.arc(bullet.x - Math.cos(bullet.ang) * i * 2 * sizeMod - camera.x, bullet.y - Math.sin(bullet.ang) * i * 2 * sizeMod - camera.y, 2 * sizeMod * player.gun.bulletsize * ((1.0 + player.gun.spreadMod * 1.0 * (player.gun.range - bullet.lifetime) / player.gun.range)), 0, 2 * Math.PI);
                     context.fill();
                 }
                 /*context.fillStyle = 'white';

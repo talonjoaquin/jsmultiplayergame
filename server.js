@@ -13,7 +13,7 @@ var ais = [];
 var rifle = {
     reload: 4,
     damage: 4,
-    speed: 1.1,
+    speed: 1.4,
     range: 100,
     bulletsize: 1,
     bullettrail: 8,
@@ -78,7 +78,7 @@ io.on('connection', function(socket){
             mousey: 0,
             health: 100,
             shotcycle: 0,
-            gun: rifle,
+            gun: Math.random() > 0.5 ? rifle : shotgun,
             bullets: [],
             speedCoeff: 1.0,
             pushx: 0,
@@ -123,7 +123,10 @@ setInterval(function(){
                 chasedPlayer = player;
                 playerId = pid;
             }
-            
+            for(var i = 0; i < player.bullets.length; i++){
+                var bullet = player.bullets[i];
+                
+            }
         }
         npc.speedCoeff += (1.0 - npc.speedCoeff) / 20;
         if(chasedPlayer != undefined && distToPlayer < aggroRange){
@@ -185,7 +188,7 @@ setInterval(function(){
                     y: 0,
                     speed: player.gun.speed,
                     lifetime: player.gun.range,
-                    flash: 3
+                    flash: 1
                 };
                 bullet.x = player.x + Math.cos(bullet.ang) * 8;
                 bullet.y = player.y + Math.sin(bullet.ang) * 8;
