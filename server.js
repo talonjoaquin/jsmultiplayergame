@@ -11,7 +11,7 @@ var actors = {};
 var players = {};
 var ais = {};
 
-var playerspeed = 0.1;
+var playerspeed = 0.08;
 var npspeed = 0.05;
 var NPCLIM = 100;
 var aggroRange = 150000;
@@ -94,7 +94,7 @@ setInterval(function(){
             var proximitySpeedCoeff = Math.max(0, (aggroRange - distToPlayer)/aggroRange);
             npc.x += Math.cos(angleToPlayer) * npspeed * timeDifference * proximitySpeedCoeff * npc.speedCoeff;
             npc.y += Math.sin(angleToPlayer) * npspeed * timeDifference * proximitySpeedCoeff * npc.speedCoeff;
-            if(distToPlayer <= 4){
+            if(distToPlayer <= 16){
                 chasedPlayer.health -= 0.1 * timeDifference;
                 chasedPlayer.speedCoeff = 0.25;
                 if(chasedPlayer.health <= 0){

@@ -68,7 +68,7 @@ socket.on('state', function(actors){
         context.beginPath();
         context.arc(player.x, player.y, playerSize, 0, 2 * Math.PI);
         context.fill();
-        context.fillStyle = 'red';
+        context.fillStyle = 'indianred';
         if(player.health > 0){
             context.fillRect(player.x - 8, player.y - 8, player.health / 100 * 16, 2);
         }
