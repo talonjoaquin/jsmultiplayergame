@@ -6,6 +6,11 @@ var movement = {
     left: false,
     right: false
 }
+var mouse = {
+    x: 0,
+    y: 0,
+    clicked: false
+}
 
 document.addEventListener('keydown', function(event){
     switch(event.keyCode){
@@ -39,13 +44,23 @@ document.addEventListener('keyup', function(event){
             break;
     }
 });
-
+document.addEventListener('mousemove', function(event){
+    mouse.x = event.clientX;
+    mouse.y = event.clientY;
+})
+document.addEventListener('mousedown', function(event){
+    mouse.clicked = true;
+});
+document.addEventListener('mouseup', function(){
+    mouse.clicked = false;
+});
 socket.on('message', function(data){
     console.log(data);
 });
 socket.emit('new player');
 setInterval(function(){
     socket.emit('movement', movement);
+    socket.emit('mouse', mouse);
 }, 1000 / 60);
 
 
@@ -70,6 +85,13 @@ socket.on('state', function(actors){
         context.fillStyle = 'indianred';
         if(player.health > 0){
             context.fillRect(player.x - 8, player.y - 8, player.health / 100 * 16, 2);
+        }
+        context.fillStyle = 'yellow';
+        for (var b in player.bullets){
+            var bullet = player.bullets[b];
+            context.beginPath();
+            context.arc(bullet.x, bullet.y, 3, 0, 2 * Math.PI);
+            context.fill();
         }
     }
     context.fillStyle = 'lightgreen';

@@ -9,7 +9,13 @@ var io = socketIO(server);
 
 var actors = {};
 var players = {};
-var ais = {};
+var ais = [];
+var rifle = {
+    reload: 5,
+    damage: 4,
+    speed: 1.2,
+    range: 100
+};
 
 var playerspeed = 0.08;
 var npspeed = 0.05;
@@ -47,8 +53,16 @@ io.on('connection', function(socket){
             right: false,
             up: false,
             down: false,
+            clicked: false,
+            mousex: 0,
+            mousey: 0,
             health: 100,
-            speedCoeff: 1.0
+            shotcycle: 0,
+            gun: rifle,
+            bullets: [],
+            speedCoeff: 1.0,
+            pushx: 0,
+            pushy: 0
         };
     });
     socket.on('movement', function(data){
@@ -57,6 +71,12 @@ io.on('connection', function(socket){
         player.right = data.right;
         player.up = data.up;
         player.down = data.down;
+    });
+    socket.on('mouse', function(data){
+        var player = players[socket.id] || {};
+        player.mousex = data.x;
+        player.mousey = data.y;
+        player.clicked = data.clicked;
     });
     socket.on('disconnect', function(){
         delete players[socket.id];
@@ -119,6 +139,8 @@ setInterval(function(){
     for (var id in players){
         var player = players[id];
         player.speedCoeff += (1.0 - player.speedCoeff) / 10;
+        player.pushx *= 0.9;
+        player.pushy *= 0.9;
         if(player.left){
             player.x -= playerspeed * timeDifference * player.speedCoeff;
         }
@@ -130,6 +152,43 @@ setInterval(function(){
         }
         if(player.down){
             player.y += playerspeed * timeDifference * player.speedCoeff;
+        }
+        player.x += player.pushx;
+        player.y += player.pushy;
+        for (var b = 0; b < player.bullets.length; b++){
+            var bullet = player.bullets[b];
+            if(bullet.lifetime > 0){
+                bullet.x += Math.cos(bullet.ang) * bullet.speed * timeDifference;
+                bullet.y += Math.sin(bullet.ang) * bullet.speed * timeDifference;
+                bullet.lifetime--;
+            }
+            if(bullet.lifetime <= 0){
+                delete player.bullets[b];
+            }
+        }
+        for (var b = 0; b < player.bullets.length; b++){
+            var bullet = player.bullets[b];
+            if(bullet == undefined){
+                player.bullets.splice(b, 1);
+                b--;
+            }
+        }
+        if(player.clicked){
+            if (player.shotcycle == 0){
+                var bullet = {
+                    ang: Math.atan2(player.mousey - player.y, player.mousex - player.x),
+                    x: 0,
+                    y: 0,
+                    speed: player.gun.speed,
+                    lifetime: player.gun.range
+                };
+                bullet.x = player.x + Math.cos(bullet.ang) * 4;
+                bullet.y = player.y + Math.cos(bullet.ang) * 4;
+                player.bullets.push(bullet);
+                player.shotcycle = player.gun.reload;
+            }else{
+                player.shotcycle--;
+            }
         }
     }
 
