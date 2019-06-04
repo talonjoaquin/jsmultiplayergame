@@ -46,7 +46,6 @@ socket.on('message', function(data){
 socket.emit('new player');
 setInterval(function(){
     socket.emit('movement', movement);
-    socket.emit('active');
 }, 1000 / 60);
 
 

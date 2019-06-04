@@ -48,8 +48,7 @@ io.on('connection', function(socket){
             up: false,
             down: false,
             health: 100,
-            speedCoeff: 1.0,
-            active: 100
+            speedCoeff: 1.0
         };
     });
     socket.on('movement', function(data){
@@ -59,10 +58,8 @@ io.on('connection', function(socket){
         player.up = data.up;
         player.down = data.down;
     });
-    socket.on('active', function(){
-        if(players[socket.id] != undefined){
-            players[socket.id].active = 100;
-        }
+    socket.on('disconnect', function(){
+        delete players[socket.id];
     })
 });
 
@@ -121,11 +118,6 @@ setInterval(function(){
     }
     for (var id in players){
         var player = players[id];
-        if(player.active == 0){
-            delete players[id];
-        }else{
-            player.active--;
-        }
         player.speedCoeff += (1.0 - player.speedCoeff) / 10;
         if(player.left){
             player.x -= playerspeed * timeDifference * player.speedCoeff;
