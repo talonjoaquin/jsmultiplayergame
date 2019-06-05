@@ -24,13 +24,13 @@ var rifle = {
 };
 
 var shotgun = {
-    reload: 40,
+    reload: 30,
     damage: 20,
-    speed: 2,
+    speed: 1.4,
     range: 12,
     bulletsize: 4,
-    bullettrail: 10,
-    kickback: 50,
+    bullettrail: 20,
+    kickback: 4,
     coneMod: 1,
     spreadMod: 1
 };
@@ -70,17 +70,36 @@ for (var y = 0; y < 20; y++){
         
     }
 }
+var currX = 0;
+var currY = 0;
 for (var iy = 0; iy < 20; iy++){
     for(var ix = 0; ix < 20; ix++){
         if(cityplan[ix + iy * 20]) {
+            console.log(currX + " " + currY);
             buildings.push({
-                x: ix * 600,
-                y: iy * 600,
+                x: currX,
+                y: currY,
                 w: 500,
                 h: 500
             });
         }
+        currX += 500;
+        if((ix+1) % 2 == 0){
+            currX += 100;
+        }else{
+            currX += 50;
+        }
+        if(currX >= 550 * 20 + 50 * 20 / 2){
+            currX = 0;
+            currY += 500;
+            if((iy+1) % 2 == 0){
+                currY += 100;
+            }else{
+                currY += 50;
+            }
+        }
     }
+    
 }
 io.on('connection', function(socket){
     socket.on('new player', function(){
@@ -153,7 +172,7 @@ setInterval(function(){
                 /*if(Math.abs(Math.atan2(bullet.y - npc.y, bullet.x - npc.x) - bullet.ang) > Math.PI){
                     continue;
                 }*/
-                var bulletsize = 1.5 * (4 * 1.4 * player.gun.bulletsize * ((1.0 + player.gun.spreadMod * 1.0 * (player.gun.range - bullet.lifetime) / player.gun.range)));
+                var bulletsize = 1.5 * (4 * 1.4 * player.gun.bulletsize * ((1.0 + player.gun.spreadMod * 2.0 * (player.gun.range - bullet.lifetime) / player.gun.range)));
                 if((bullet.y - npc.y) * (bullet.y - npc.y) + (bullet.x - npc.x)*(bullet.x - npc.x) < bulletsize * bulletsize){
                     ais[id] = {
                         x: 0,
@@ -314,8 +333,7 @@ setInterval(function(){
             player.pushy = -1 * speedlim;
         }
         player.speedCoeff += (1.0 - player.speedCoeff) / 10;
-        player.pushx *= 0.25;
-        player.pushy *= 0.25;
+        
         if(player.left){
             player.x -= playerspeed * timeDifference * player.speedCoeff;
         }
@@ -330,6 +348,8 @@ setInterval(function(){
         }
         player.x += player.pushx;
         player.y += player.pushy;
+        player.pushx *= 0.75;
+        player.pushy *= 0.75;
     }
 
     actors = {
