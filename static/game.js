@@ -102,13 +102,20 @@ socket.on('state', function(actors){
         camera.y += (me.y - 450 - (me.pushy) * 120 - camera.y) * camera.lerp;
     }
     for (var id in actors.npcs){
-        context.fillStyle = 'slategray';
+        
         var npc = actors.npcs[id];
-        context.beginPath();
-        context.arc(npc.x - camera.x, npc.y - camera.y, actorSize, 0, 2 * Math.PI);
-        context.fill();
+        //context.beginPath();
+        //context.arc(npc.x - camera.x, npc.y - camera.y, actorSize, 0, 2 * Math.PI);
+        context.globalAlpha = 1.0;
+        
+        //context.drawRect(npc.x - camera.x, npc.y - camera.y, actorSize * 2, actorSize * 2);
         context.fillStyle = 'black';
-        context.stroke();
+        context.fillRect(npc.x - camera.x - 2, npc.y - camera.y - 2, actorSize+ 4, actorSize + 4);
+
+        context.fillStyle = 'slategray';
+        //context.fill();
+        context.fillRect(npc.x - camera.x, npc.y - camera.y, actorSize, actorSize);
+        
     }
     for (var id in actors.pcs){
         context.fillStyle = 'lightpink';

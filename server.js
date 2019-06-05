@@ -35,12 +35,12 @@ var shotgun = {
 };
 
 var cspeedmod = 1.5;
-var playerspeed = 0.08 * cspeedmod;
+var playerspeed = 0.12 * cspeedmod;
 var speedlim = 6;
 var push = 8;
-var npspeed = 0.1 * cspeedmod;
-var NPCLIM = 100;
-var aggroRange = 150000;
+var npspeed = 0.12 * cspeedmod;
+var NPCLIM = 200;
+var aggroRange = 300000;
 
 app.set('port', 5000);
 app.use('/static', express.static(__dirname + '/static'));
@@ -55,20 +55,21 @@ server.listen(5000, function(){
 
 for (var i = 0; i < NPCLIM; i++){
     ais[i] = {
-        x: Math.floor(Math.random() * 1400),
-        y: Math.floor(Math.random() * 900),
+        x: Math.random() > 0.5 ? Math.floor(Math.random() * 600) : 800 + Math.floor(Math.random() * 600),
+        y: Math.random() > 0.5 ? Math.floor(Math.random() * 350) : 550 + Math.floor(Math.random() * 350),
         speedCoeff: 1.0,
         wanderlust: 0,
         wanderang: 0
     }
+    
 }
 
 io.on('connection', function(socket){
     socket.on('new player', function(){
         console.log("New connection");
         players[socket.id] = {
-            x: 300,
-            y: 300,
+            x: 700,
+            y: 450,
             left: false,
             right: false,
             up: false,
@@ -110,6 +111,7 @@ setInterval(function(){
     var currentTime = (new Date()).getTime(); 
     var timeDifference = currentTime - lastUpdateTime;
     
+    console.log(ais.length);
     for(var id in ais){
         var npc = ais[id];
         var distToPlayer = Infinity;
@@ -125,8 +127,76 @@ setInterval(function(){
             }
             for(var i = 0; i < player.bullets.length; i++){
                 var bullet = player.bullets[i];
-                
+                if(bullet == undefined){
+                    continue;
+                }
+                if(Math.abs(bullet.x - npc.x) > 400 || Math.abs(bullet.y - npc.y) > 400){
+                    continue;
+                }
+                /*if(Math.abs(Math.atan2(bullet.y - npc.y, bullet.x - npc.x) - bullet.ang) > Math.PI){
+                    continue;
+                }*/
+                var bulletsize = 1.5 * (4 * 1.4 * player.gun.bulletsize * ((1.0 + player.gun.spreadMod * 1.0 * (player.gun.range - bullet.lifetime) / player.gun.range)));
+                if((bullet.y - npc.y) * (bullet.y - npc.y) + (bullet.x - npc.x)*(bullet.x - npc.x) < bulletsize * bulletsize){
+                    ais[id] = {
+                        x: 0,
+                        y: 0,
+                        speedCoeff: 1.0,
+                        wanderlust: 0,
+                        wanderang: 0
+                    };
+                    var intheclear = false;
+                    while(!intheclear){
+                        intheclear = true;
+                        for(var pid in players){
+                            var camera = players[pid];
+                            if(Math.abs(ais[id].x - camera.x) <= 720 && Math.abs(ais[id].y - camera.y) <= 470){
+                                intheclear = false;
+                            }
+                            if(!intheclear){
+                                ais[id].x = (Math.random() > 0.5 ? (Math.floor(camera.x - 700 - 100 - Math.random() * 100)) : (Math.floor(camera.x + 700 + 100 + Math.random() * 100)));
+                                ais[id].y = (Math.random() > 0.5 ? (Math.floor(camera.y - 450 - 100 - Math.random() * 100)) : (Math.floor(camera.y + 450 + 100 + Math.random() * 100)));
+                            }
+                            
+                        }
+                    }
+                    break;
+                }else if((bullet.y - Math.sin(bullet.ang) * 2 * player.gun.bullettrail - npc.y) * (bullet.y - Math.sin(bullet.ang) * 2 * player.gun.bullettrail - npc.y) + (bullet.x - Math.cos(bullet.ang) * 2 * player.gun.bullettrail - npc.x)*(bullet.x - Math.cos(bullet.ang) * 2 * player.gun.bullettrail - npc.x) < bulletsize * bulletsize){
+                    //ais.splice(id, 1);
+                    ais[id] = {
+                        x: 0,
+                        y: 0,
+                        speedCoeff: 1.0,
+                        wanderlust: 0,
+                        wanderang: 0
+                    };
+                    var intheclear = false;
+                    while(!intheclear){
+                        intheclear = true;
+                        for(var pid in players){
+                            var camera = players[pid];
+                            if(Math.abs(ais[id].x - camera.x) <= 720 && Math.abs(ais[id].y - camera.y) <= 470){
+                                intheclear = false;
+                            }
+                            if(!intheclear){
+                                ais[id].x = (Math.random() > 0.5 ? (Math.floor(camera.x - 700 - 100 - Math.random() * 100)) : (Math.floor(camera.x + 700 + 100 + Math.random() * 100)));
+                                ais[id].y = (Math.random() > 0.5 ? (Math.floor(camera.y - 450 - 100 - Math.random() * 100)) : (Math.floor(camera.y + 450 + 100 + Math.random() * 100)));
+                            }
+                            
+                        }
+                    }
+                    
+                    //ais.push(temp);
+                    //id--;
+                    break;
+                }
             }
+            if(ais[id] == undefined){
+                break;
+            }
+        }
+        if(ais[id] == undefined){
+            continue;
         }
         npc.speedCoeff += (1.0 - npc.speedCoeff) / 20;
         if(chasedPlayer != undefined && distToPlayer < aggroRange){
@@ -136,7 +206,7 @@ setInterval(function(){
             npc.x += Math.cos(angleToPlayer) * npspeed * timeDifference * proximitySpeedCoeff * npc.speedCoeff;
             npc.y += Math.sin(angleToPlayer) * npspeed * timeDifference * proximitySpeedCoeff * npc.speedCoeff;
             if(distToPlayer <= 16){
-                chasedPlayer.health -= 1 * timeDifference;
+                //chasedPlayer.health -= 1 * timeDifference;
                 chasedPlayer.speedCoeff = 0.25;
                 chasedPlayer.pushx += Math.cos(angleToPlayer) * push;
                 chasedPlayer.pushy += Math.sin(angleToPlayer) * push;
@@ -152,7 +222,21 @@ setInterval(function(){
                 npc.y += Math.sin(npc.wanderang) * npspeed * timeDifference * 0.25 * npc.speedCoeff;
             }else{
                 npc.wanderlust = Math.floor(Math.random() * 1000) + 100;
-                npc.wanderang = Math.random() * 2 * Math.PI;  
+                var avgX = 0;
+                var avgY = 0;
+                var count = 0;
+                for(var pid in players){
+                    count++;
+                    avgX += players[pid].x;
+                    avgY += players[pid].y;
+                }
+                npc.wanderang = Math.random() * 2 * Math.PI; 
+                if(count > 0){
+                    avgX /= count;
+                    avgY /= count;
+                    npc.wanderang = Math.random() * Math.PI / 8 - Math.random() * Math.PI / 8 + Math.atan2(avgY - npc.y, avgX - npc.x);
+                }
+                 
             }
         }
     }
