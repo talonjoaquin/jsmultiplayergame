@@ -36,6 +36,17 @@ var shotgun = {
     spreadMod: 1
 };
 
+var flamethrower = {
+    reload: 2,
+    damage: 0.25,
+    speed: 0.4,
+    range: 30,
+    bulletsize: 1.5,
+    bullettrail: 4,
+    kickback: 0,
+    coneMod: 0,
+    spreadMod: 2
+}
 var cspeedmod = 1.5;
 var playerspeed = 0.12 * cspeedmod;
 var speedlim = 6;
@@ -122,7 +133,7 @@ io.on('connection', function(socket){
             mousey: 0,
             health: 100,
             shotcycle: 0,
-            gun: Math.random() > 0.5 ? rifle : shotgun,
+            gun: flamethrower,
             bullets: [],
             speedCoeff: 1.0,
             pushx: 0,
@@ -184,6 +195,10 @@ setInterval(function(){
                     npc.pushx += Math.cos(bullet.ang) * player.gun.kickback * 5;
                     npc.pushy += Math.sin(bullet.ang) * player.gun.kickback * 5;
                     if(npc.health <= 0){
+                        if(player.gun.kickback == 0){
+                            npc.pushx -= Math.cos(bullet.ang) * 8;
+                            npc.pushy -= Math.sin(bullet.ang) * 8;
+                        }
                         corpses.push({
                             x: npc.x,
                             y: npc.y,
@@ -246,6 +261,10 @@ setInterval(function(){
                     npc.pushx += Math.cos(bullet.ang) * player.gun.kickback * 5;
                     npc.pushy += Math.sin(bullet.ang) * player.gun.kickback * 5;
                     if(npc.health <= 0){
+                        if(player.gun.kickback == 0){
+                            npc.pushx -= Math.cos(bullet.ang) * 8;
+                            npc.pushy -= Math.sin(bullet.ang) * 8;
+                        }
                         corpses.push({
                             x: npc.x,
                             y: npc.y,

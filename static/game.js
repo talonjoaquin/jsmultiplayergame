@@ -218,8 +218,8 @@ socket.on('state', function(actors){
                 //if(ex.frame > 0){
                     //onsole.log("roached");
                     if(ex.frame == 3){
-                        shakex = Math.random() * 200 - Math.random() * 200;
-                        shakey = Math.random() * 200 - Math.random() * 200;
+                        shakex = (Math.random() * 10 - Math.random() * 10)*(ex.r);
+                        shakey = (Math.random() * 10 - Math.random() * 10)*(ex.r);
                         context.globalAlpha = 1.0;
                         context.fillStyle = 'orange';
                         context.beginPath();
