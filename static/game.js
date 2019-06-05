@@ -17,6 +17,7 @@ var camera = {
     lerp: 0.2
 }
 var meid;
+var map;
 
 document.addEventListener('keydown', function(event){
     switch(event.keyCode){
@@ -81,11 +82,14 @@ var context = canvas.getContext('2d');
 var sizeMod = 1.4;
 var playerSize = 4 * sizeMod;
 var actorSize = 4 * sizeMod;
-
+socket.on('map', function(data){
+    map = data;
+});
 socket.on('state', function(actors){
     context.clearRect(0, 0, 1400, 900);
     context.fillStyle = 'lightgrey';
     context.fillRect(0, 0, 1400, 900);
+    
     var me = actors.pcs[meid];
     if(me != undefined){
         if(me.pushx === 0){
@@ -187,4 +191,24 @@ socket.on('state', function(actors){
     }
     
     
+
+    
+    if(map != undefined){
+        context.fillStyle = 'black';
+        for(var i = 0; i < map.buildings.length; i++){
+            context.globalAlpha = 1.0;    
+            var building = map.buildings[i];
+            //console.log((me.x > building.x && me.x < building.x + building.w) && (me.y > building.y && me.y < building.y + building.h));
+            if(me != undefined){
+                if((me.x > building.x && me.x < building.x + building.w) && (me.y > building.y && me.y < building.y + building.h)){
+                    context.globalAlpha = 0.5;
+                }else{
+                    context.globalAlpha = 1.0;
+                }
+                
+            }
+            context.fillRect(building.x - camera.x, building.y - camera.y, building.w, building.h);
+        }
+    }
+    context.globalAlpha = 1.0;
 });

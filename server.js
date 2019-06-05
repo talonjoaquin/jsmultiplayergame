@@ -10,6 +10,7 @@ var io = socketIO(server);
 var actors = {};
 var players = {};
 var ais = [];
+var buildings = [];
 var rifle = {
     reload: 4,
     damage: 4,
@@ -61,7 +62,24 @@ for (var i = 0; i < NPCLIM; i++){
         wanderlust: 0,
         wanderang: 0
     }
-    
+}
+var cityplan = [];
+for (var y = 0; y < 10; y++){
+    for(var x = 0; x < 10; x++){
+        cityplan[x + y * 10] = (Math.random() > 0.5);
+    }
+}
+for (var j = 0; j < 10; i++){
+    for(var i = 0; i < 10; j++){
+        if(cityplan[i + j * 10]) {
+            /*buildings.push({
+                x: i * 100,
+                y: j * 100,
+                w: 100,
+                h: 100
+            });*/
+        }
+    }
 }
 
 io.on('connection', function(socket){
@@ -111,7 +129,6 @@ setInterval(function(){
     var currentTime = (new Date()).getTime(); 
     var timeDifference = currentTime - lastUpdateTime;
     
-    console.log(ais.length);
     for(var id in ais){
         var npc = ais[id];
         var distToPlayer = Infinity;
@@ -206,7 +223,7 @@ setInterval(function(){
             npc.x += Math.cos(angleToPlayer) * npspeed * timeDifference * proximitySpeedCoeff * npc.speedCoeff;
             npc.y += Math.sin(angleToPlayer) * npspeed * timeDifference * proximitySpeedCoeff * npc.speedCoeff;
             if(distToPlayer <= 16){
-                //chasedPlayer.health -= 1 * timeDifference;
+                chasedPlayer.health -= 0.25 * timeDifference;
                 chasedPlayer.speedCoeff = 0.25;
                 chasedPlayer.pushx += Math.cos(angleToPlayer) * push;
                 chasedPlayer.pushy += Math.sin(angleToPlayer) * push;
@@ -319,7 +336,12 @@ setInterval(function(){
         pcs: players,
         npcs: ais
     }
+    map = {
+        buildings: buildings
+    };
+    io.sockets.emit('map', map);
     io.sockets.emit('state', actors);
+    
     //console.log(actors);
     lastUpdateTime = currentTime;
 }, 1000 / 60);
