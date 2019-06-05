@@ -25,7 +25,7 @@ var rifle = {
 };
 
 var shotgun = {
-    reload: 30,
+    reload: 80,
     damage: 2,
     speed: 1.4,
     range: 12,
@@ -72,7 +72,7 @@ for (var i = 0; i < NPCLIM; i++){
 var cityplan = [];
 for (var y = 0; y < 20; y++){
     for(var x = 0; x < 20; x++){
-        cityplan[x + y * 20] = (Math.random() > -0.1);
+        cityplan[x + y * 20] = (Math.random() > 0.1);
         
     }
 }
@@ -189,8 +189,28 @@ setInterval(function(){
                             y: npc.y,
                             pushx: npc.pushx,
                             pushy: npc.pushy,
-                            aipackage: npc.aipackage
+                            aipackage: npc.aipackage,
+                            explosions: [{
+                                x: 0,
+                                y: 0,
+                                frame: 3,
+                                r: 10 + Math.random() * 100,
+                                triggered: false
+                            },{
+                                x: 0,
+                                y: 0,
+                                frame: 3,
+                                r: 10 + Math.random() * 100,
+                                triggered: false
+                            },{
+                                x: 0,
+                                y: 0,
+                                frame: 3,
+                                r: 10 + Math.random() * 100,
+                                triggered: false
+                            }]
                         });
+                        
                         ais[id] = {
                             x: 0,
                             y: 0,
@@ -231,7 +251,26 @@ setInterval(function(){
                             y: npc.y,
                             pushx: npc.pushx,
                             pushy: npc.pushy,
-                            aipackage: npc.aipackage
+                            aipackage: npc.aipackage,
+                            explosions: [{
+                                x: 0,
+                                y: 0,
+                                frame: 3,
+                                r: 10 + Math.random() * 100,
+                                triggered: false
+                            },{
+                                x: 0,
+                                y: 0,
+                                frame: 3,
+                                r: 10 + Math.random() * 100,
+                                triggered: false
+                            },{
+                                x: 0,
+                                y: 0,
+                                frame: 3,
+                                r: 10 + Math.random() * 100,
+                                triggered: false
+                            }]
                         });
                         ais[id] = {
                             x: 0,
@@ -343,7 +382,9 @@ setInterval(function(){
                 delete player.bullets[b];
             }
         }
-        
+        if(player.shotcycle > 0){
+            player.shotcycle--;
+        }
         if(player.clicked){
             if (player.shotcycle == 0){
                 var bullet = {
@@ -360,8 +401,6 @@ setInterval(function(){
                 player.pushx -= Math.cos(bullet.ang) * player.gun.kickback * (0.8 + Math.random() * 0.4);
                 player.pushy -= Math.sin(bullet.ang) * player.gun.kickback * (0.8 + Math.random() * 0.4);
                 player.shotcycle = player.gun.reload;
-            }else{
-                player.shotcycle--;
             }
         }
         if(player.pushx > speedlim){
@@ -396,11 +435,36 @@ setInterval(function(){
         player.pushy *= 0.75;
     }
     for(var i = 0; i < corpses.length; i++){
-        corpses[i].x += corpses[i].pushx;
-        corpses[i].y += corpses[i].pushy;
-        corpses[i].pushx *= 0.85;
-        corpses[i].pushy *= 0.85;
+        if(Math.abs(corpses[i].pushx) > 1 && Math.abs(corpses[i].pushy) > 1){
+            corpses[i].x += corpses[i].pushx;
+            corpses[i].y += corpses[i].pushy;
+            corpses[i].pushx *= 0.85;
+            corpses[i].pushy *= 0.85;
+            
+        }
+        var noexplo = false;
+            if(!noexplo){
+                noexplo = true;
+                for(var j = 0; j < corpses[i].explosions.length; j++){
+                    var ex = corpses[i].explosions[j];
+                    
+                    if(!ex.triggered && Math.abs(corpses[i].pushx) > 1 && Math.abs(corpses[i].pushy) > 1){
+                        noexplo = false;
+                        ex.triggered = Math.random() > 0.97;
+                        if(ex.triggered){
+                            ex.x = corpses[i].x;
+                            ex.y = corpses[i].y;
+                        }
+                    }else{
+                        if(ex.frame > 0){
+                            noexplo = false;
+                        }
+                        ex.frame--;
+                    }
+                }
+            }
     }
+        
     actors = {
         pcs: players,
         npcs: ais,
