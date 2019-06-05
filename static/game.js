@@ -82,6 +82,10 @@ var context = canvas.getContext('2d');
 var sizeMod = 1.4;
 var playerSize = 4 * sizeMod;
 var actorSize = 4 * sizeMod;
+
+var shakex = 0;
+var shakey = 0;
+
 socket.on('map', function(data){
     map = data;
 });
@@ -102,8 +106,10 @@ socket.on('state', function(actors){
         }else{
             tilty = Math.abs(me.pushy) / me.pushy;
         }
-        camera.x += (me.x - 700 - (me.pushx) * 120 - camera.x) * camera.lerp;
-        camera.y += (me.y - 450 - (me.pushy) * 120 - camera.y) * camera.lerp;
+        camera.x += (me.x - 700 - (me.pushx) * 100 - shakex - camera.x) * camera.lerp;
+        camera.y += (me.y - 450 - (me.pushy) * 100 - shakey - camera.y) * camera.lerp;
+        shakex *= 0.8;
+        shakey *= 0.8;
     }
     for (var id in actors.npcs){
         
@@ -132,6 +138,7 @@ socket.on('state', function(actors){
         context.fillStyle = 'black';
         //context.fill();
         context.fillRect(corpse.x - camera.x, corpse.y - camera.y, actorSize, actorSize);
+        //console.log(corpse.explosions);
         
     }
     for (var id in actors.pcs){
@@ -170,8 +177,6 @@ socket.on('state', function(actors){
                 context.globalAlpha = 1.0;
             }else{
                 
-                console.log(player.gun);
-                
                 for(var i = 0; i < player.gun.bullettrail; i++){
                    
                     context.fillStyle = 'darkorange';
@@ -204,6 +209,44 @@ socket.on('state', function(actors){
     }
     
     
+    for (var id in actors.bodies){
+        var corpse = actors.bodies[id];
+        for(var v = 0; v < corpse.explosions.length; v++){
+            var ex = corpse.explosions[v];
+            if(ex.triggered){
+                //console.log("ruached");
+                //if(ex.frame > 0){
+                    //onsole.log("roached");
+                    if(ex.frame == 3){
+                        shakex = Math.random() * 200 - Math.random() * 200;
+                        shakey = Math.random() * 200 - Math.random() * 200;
+                        context.globalAlpha = 1.0;
+                        context.fillStyle = 'orange';
+                        context.beginPath();
+                        context.arc(ex.x - camera.x + Math.random() * 10 - Math.random() * 10, ex.y - camera.y + Math.random() * 10 - Math.random() * 10, ex.r, 0, Math.PI * 2);
+                        context.fill();
+                        context.globalAlpha = 1.0;
+                    }else if(ex.frame == 2){
+                        //onsole.log("reached");
+                        context.globalAlpha = 1.0;
+                        context.fillStyle = 'black';
+                        context.beginPath();
+                        context.arc(ex.x - camera.x + Math.random() * 10 - Math.random() * 10, ex.y - camera.y + Math.random() * 10 - Math.random() * 10, ex.r, 0, Math.PI * 2);
+                        context.fill();
+                        context.globalAlpha = 1.0;
+                    }else if(ex.frame == 1){
+                        context.globalAlpha = 1.0;
+                        context.fillStyle = 'white';
+                        context.beginPath();
+                        context.arc(ex.x - camera.x + Math.random() * 10 - Math.random() * 10, ex.y - camera.y + Math.random() * 10 - Math.random() * 10, ex.r, 0, Math.PI * 2);
+                        context.fill();
+                    }
+                    //ex.frame--;
+               // }
+            }
+        }
+    }
+     
 
     
     if(map != undefined){
