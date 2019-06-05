@@ -30,7 +30,7 @@ var shotgun = {
     range: 12,
     bulletsize: 4,
     bullettrail: 10,
-    kickback: 10,
+    kickback: 50,
     coneMod: 1,
     spreadMod: 1
 };
@@ -56,38 +56,38 @@ server.listen(5000, function(){
 
 for (var i = 0; i < NPCLIM; i++){
     ais[i] = {
-        x: Math.random() > 0.5 ? Math.floor(Math.random() * 600) : 800 + Math.floor(Math.random() * 600),
-        y: Math.random() > 0.5 ? Math.floor(Math.random() * 350) : 550 + Math.floor(Math.random() * 350),
+        x: 5000 + Math.random() * 1000 - Math.random() * 1000,
+        y: 5000 + Math.random() * 1000 - Math.random() * 1000,
         speedCoeff: 1.0,
         wanderlust: 0,
         wanderang: 0
     }
 }
 var cityplan = [];
-for (var y = 0; y < 10; y++){
-    for(var x = 0; x < 10; x++){
-        cityplan[x + y * 10] = (Math.random() > 0.5);
+for (var y = 0; y < 20; y++){
+    for(var x = 0; x < 20; x++){
+        cityplan[x + y * 20] = (Math.random() > -0.1);
+        
     }
 }
-for (var j = 0; j < 10; i++){
-    for(var i = 0; i < 10; j++){
-        if(cityplan[i + j * 10]) {
-            /*buildings.push({
-                x: i * 100,
-                y: j * 100,
-                w: 100,
-                h: 100
-            });*/
+for (var iy = 0; iy < 20; iy++){
+    for(var ix = 0; ix < 20; ix++){
+        if(cityplan[ix + iy * 20]) {
+            buildings.push({
+                x: ix * 600,
+                y: iy * 600,
+                w: 500,
+                h: 500
+            });
         }
     }
 }
-
 io.on('connection', function(socket){
     socket.on('new player', function(){
         console.log("New connection");
         players[socket.id] = {
-            x: 700,
-            y: 450,
+            x: 5000,
+            y: 5000,
             left: false,
             right: false,
             up: false,
