@@ -10,6 +10,7 @@ var io = socketIO(server);
 var actors = {};
 var players = {};
 var ais = [];
+var corpses = [];
 var buildings = [];
 var rifle = {
     reload: 4,
@@ -183,6 +184,13 @@ setInterval(function(){
                     npc.pushx += Math.cos(bullet.ang) * player.gun.kickback * 5;
                     npc.pushy += Math.sin(bullet.ang) * player.gun.kickback * 5;
                     if(npc.health <= 0){
+                        corpses.push({
+                            x: npc.x,
+                            y: npc.y,
+                            pushx: npc.pushx,
+                            pushy: npc.pushy,
+                            aipackage: npc.aipackage
+                        });
                         ais[id] = {
                             x: 0,
                             y: 0,
@@ -218,6 +226,13 @@ setInterval(function(){
                     npc.pushx += Math.cos(bullet.ang) * player.gun.kickback * 5;
                     npc.pushy += Math.sin(bullet.ang) * player.gun.kickback * 5;
                     if(npc.health <= 0){
+                        corpses.push({
+                            x: npc.x,
+                            y: npc.y,
+                            pushx: npc.pushx,
+                            pushy: npc.pushy,
+                            aipackage: npc.aipackage
+                        });
                         ais[id] = {
                             x: 0,
                             y: 0,
@@ -380,10 +395,16 @@ setInterval(function(){
         player.pushx *= 0.75;
         player.pushy *= 0.75;
     }
-
+    for(var i = 0; i < corpses.length; i++){
+        corpses[i].x += corpses[i].pushx;
+        corpses[i].y += corpses[i].pushy;
+        corpses[i].pushx *= 0.85;
+        corpses[i].pushy *= 0.85;
+    }
     actors = {
         pcs: players,
-        npcs: ais
+        npcs: ais,
+        bodies: corpses
     }
     map = {
         buildings: buildings

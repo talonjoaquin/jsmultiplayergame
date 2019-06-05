@@ -121,6 +121,19 @@ socket.on('state', function(actors){
         context.fillRect(npc.x - camera.x, npc.y - camera.y, actorSize, actorSize);
         
     }
+    for (var id in actors.bodies){
+        var corpse = actors.bodies[id];
+        context.globalAlpha = 1.0;
+        
+        //context.drawRect(npc.x - camera.x, npc.y - camera.y, actorSize * 2, actorSize * 2);
+        context.fillStyle = 'black';
+        context.fillRect(corpse.x - camera.x - 2, corpse.y - camera.y - 2, actorSize+ 4, actorSize + 4);
+
+        context.fillStyle = 'black';
+        //context.fill();
+        context.fillRect(corpse.x - camera.x, corpse.y - camera.y, actorSize, actorSize);
+        
+    }
     for (var id in actors.pcs){
         context.fillStyle = 'lightpink';
         var player = actors.pcs[id];
