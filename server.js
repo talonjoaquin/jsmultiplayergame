@@ -50,7 +50,7 @@ var flamethrower = {
 var cspeedmod = 1.5;
 var playerspeed = 0.12 * cspeedmod;
 var speedlim = 6;
-var push = 16;
+var push = -0.01;
 var npspeed = 0.12 * cspeedmod;
 var NPCLIM = 200;
 var aggroRange = 300000;
@@ -68,8 +68,8 @@ server.listen(5000, function(){
 
 for (var i = 0; i < NPCLIM; i++){
     ais[i] = {
-        x: 5000 + Math.random() * 1000 - Math.random() * 1000,
-        y: 5000 + Math.random() * 1000 - Math.random() * 1000,
+        x: (Math.random() > 0.5 ? (Math.floor(5000 - 700 - 100 - Math.random() * 100)) : (Math.floor(5000 + 700 + 100 + Math.random() * 100))),
+        y: (Math.random() > 0.5 ? (Math.floor(5000 - 450 - 100 - Math.random() * 100)) : (Math.floor(5000 + 450 + 100 + Math.random() * 100))),
         pushx: 0,
         pushy: 0,
         speedCoeff: 1.0,
@@ -78,6 +78,23 @@ for (var i = 0; i < NPCLIM; i++){
         health: 100,
         natspeed: 1.0,
         aipackage: 'gloop'
+    }
+    var intheclear = false;
+    while(!intheclear){
+        intheclear = true;
+        //for(var pid in players){
+        var camera = {
+            x: 5000,
+            y: 5000
+        };
+        if(Math.abs(ais[i].x - camera.x) <= 720 && Math.abs(ais[i].y - camera.y) <= 470){
+            intheclear = false;
+        }
+        if(!intheclear){
+            ais[i].x = (Math.random() > 0.5 ? (Math.floor(camera.x - 700 - 100 - Math.random() * 100)) : (Math.floor(camera.x + 700 + 100 + Math.random() * 100)));
+            ais[i].y = (Math.random() > 0.5 ? (Math.floor(camera.y - 450 - 100 - Math.random() * 100)) : (Math.floor(camera.y + 450 + 100 + Math.random() * 100)));
+        }                        
+        //}
     }
 }
 var cityplan = [];
@@ -344,7 +361,7 @@ setInterval(function(){
             npc.x += Math.cos(angleToPlayer) * npspeed * timeDifference * proximitySpeedCoeff * npc.speedCoeff;
             npc.y += Math.sin(angleToPlayer) * npspeed * timeDifference * proximitySpeedCoeff * npc.speedCoeff;
             if(distToPlayer <= 16){
-                chasedPlayer.health -= 0.25 * timeDifference;
+                chasedPlayer.health -= 0.01 * timeDifference;
                 chasedPlayer.speedCoeff = 0.25;
                 chasedPlayer.pushx += Math.cos(angleToPlayer) * push;
                 chasedPlayer.pushy += Math.sin(angleToPlayer) * push;
