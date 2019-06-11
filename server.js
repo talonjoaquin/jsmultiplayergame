@@ -51,7 +51,7 @@ var cspeedmod = 1.5;
 var playerspeed = 0.12 * cspeedmod;
 var speedlim = 6;
 var push = -0.01;
-var npspeed = 0.12 * cspeedmod;
+var npspeed = 0.11 * cspeedmod;
 var NPCLIM = 200;
 var aggroRange = 300000;
 
@@ -68,35 +68,30 @@ server.listen(5000, function(){
 
 for (var i = 0; i < NPCLIM; i++){
     ais[i] = {
-        x: (Math.random() > 0.5 ? (Math.floor(5000 - 700 - 100 - Math.random() * 100)) : (Math.floor(5000 + 700 + 100 + Math.random() * 100))),
-        y: (Math.random() > 0.5 ? (Math.floor(5000 - 450 - 100 - Math.random() * 100)) : (Math.floor(5000 + 450 + 100 + Math.random() * 100))),
+        x: 0,
+        y: 0,
         pushx: 0,
         pushy: 0,
         speedCoeff: 1.0,
         wanderlust: 0,
-        wanderang: 0,
+        wanderang: Math.random() * Math.PI * 2,
         health: 100,
         natspeed: 1.0,
-        aipackage: 'gloop'
+        aipackage: 'gloop',
+        animCoeff: 1.0,
+        anim_t: Math.random() * 1000,
+        natpace: Math.random() * 0.5 + 0.75,
+        stepmod: Math.random() * 0.3 + 0.85
     }
-    var intheclear = false;
-    while(!intheclear){
-        intheclear = true;
-        //for(var pid in players){
-        var camera = {
-            x: 5000,
-            y: 5000
-        };
-        if(Math.abs(ais[i].x - camera.x) <= 720 && Math.abs(ais[i].y - camera.y) <= 470){
-            intheclear = false;
-        }
-        if(!intheclear){
-            ais[i].x = (Math.random() > 0.5 ? (Math.floor(camera.x - 700 - 100 - Math.random() * 100)) : (Math.floor(camera.x + 700 + 100 + Math.random() * 100)));
-            ais[i].y = (Math.random() > 0.5 ? (Math.floor(camera.y - 450 - 100 - Math.random() * 100)) : (Math.floor(camera.y + 450 + 100 + Math.random() * 100)));
-        }                        
-        //}
+    if(Math.random() > 0.5){
+        ais[i].x = (Math.random() > 0.5 ? (Math.floor(5000 - 700 - 300 - Math.random() * 100)) : (Math.floor(5000 + 700 + 300 + Math.random() * 100)));
+        ais[i].y = 5000 + Math.random() * 450 - Math.random() * 450;
+    }else{
+        ais[i].x = 5000 + Math.random() * 700 - Math.random() * 700;
+        ais[i].y = (Math.random() > 0.5 ? (Math.floor(5000 - 450 - 300 - Math.random() * 100)) : (Math.floor(5000 + 450 + 300 + Math.random() * 100)));
     }
 }
+
 var cityplan = [];
 for (var y = 0; y < 20; y++){
     for(var x = 0; x < 20; x++){
@@ -250,10 +245,14 @@ setInterval(function(){
                             pushy: 0,
                             speedCoeff: 1.0,
                             wanderlust: 0,
-                            wanderang: 0,
+                            wanderang: Math.random() * Math.PI * 2,
                             health: 100,
                             natspeed: 1.0,
-                            aipackage: 'gloop'
+                            aipackage: 'gloop',
+                            animCoeff: 1.0,
+                            anim_t: 0,
+                            natpace: Math.random() * 0.5 + 0.75,
+                            stepmod: Math.random() * 0.3 + 0.85
                         };
                         var intheclear = false;
                         while(!intheclear){
@@ -264,8 +263,13 @@ setInterval(function(){
                                     intheclear = false;
                                 }
                                 if(!intheclear){
-                                    ais[id].x = (Math.random() > 0.5 ? (Math.floor(camera.x - 700 - 100 - Math.random() * 100)) : (Math.floor(camera.x + 700 + 100 + Math.random() * 100)));
-                                    ais[id].y = (Math.random() > 0.5 ? (Math.floor(camera.y - 450 - 100 - Math.random() * 100)) : (Math.floor(camera.y + 450 + 100 + Math.random() * 100)));
+                                    if(Math.random() > 0.5){
+                                        ais[i].x = (Math.random() > 0.5 ? (Math.floor(camera.x - 700 - 100 - Math.random() * 100)) : (Math.floor(camera.x + 700 + 100 + Math.random() * 100)));
+                                        ais[i].y = 5000 + Math.random() * 450 - Math.random() * 450;
+                                    }else{
+                                        ais[i].x = 5000 + Math.random() * 700 - Math.random() * 700;
+                                        ais[i].y = (Math.random() > 0.5 ? (Math.floor(camera.y - 450 - 100 - Math.random() * 100)) : (Math.floor(camera.y + 450 + 100 + Math.random() * 100)));
+                                    }
                                 }
                             
                             }  
@@ -315,10 +319,14 @@ setInterval(function(){
                             pushy: 0,
                             speedCoeff: 1.0,
                             wanderlust: 0,
-                            wanderang: 0,
+                            wanderang: Math.random() * Math.PI * 2,
                             health: 100,
                             natspeed: 1.0,
-                            aipackage: 'gloop'
+                            aipackage: 'gloop',
+                            animCoeff: 1.0,
+                            anim_t: 0,
+                            natpace: Math.random() * 0.5 + 0.75,
+                            stepmod: Math.random() * 0.3 + 0.85
                         };
                         var intheclear = false;
                         while(!intheclear){
@@ -354,12 +362,20 @@ setInterval(function(){
         npc.y += npc.pushy;
         npc.pushx *= 0.75;
         npc.pushy *= 0.75;
+        npc.anim_t++;
+        npc.animCoeff = 1.4 * Math.sin(npc.anim_t/(Math.PI * npc.natpace / 2));
+        
+        if(Math.abs((npc.anim_t/(Math.PI * npc.natpace / 2)) - Math.round(npc.anim_t/(Math.PI * npc.natpace / 2))) < 1){
+            npc.stepmod = Math.random() * 0.3 + 0.85;
+            //console.log("stepmod");
+        }
+        npc.speedCoeff = 1.9 + npc.animCoeff;
         if(chasedPlayer != undefined && distToPlayer < aggroRange){
             npc.wanderlust = 0;
             var angleToPlayer = Math.atan2((chasedPlayer.y - npc.y), (chasedPlayer.x - npc.x));
-            var proximitySpeedCoeff = Math.max(0, (aggroRange - distToPlayer)/aggroRange);
-            npc.x += Math.cos(angleToPlayer) * npspeed * timeDifference * proximitySpeedCoeff * npc.speedCoeff;
-            npc.y += Math.sin(angleToPlayer) * npspeed * timeDifference * proximitySpeedCoeff * npc.speedCoeff;
+            
+            npc.x += Math.cos(angleToPlayer) * npspeed * timeDifference * npc.speedCoeff * npc.stepmod;
+            npc.y += Math.sin(angleToPlayer) * npspeed * timeDifference * npc.speedCoeff * npc.stepmod;
             if(distToPlayer <= 16){
                 chasedPlayer.health -= 0.01 * timeDifference;
                 chasedPlayer.speedCoeff = 0.25;
@@ -368,13 +384,21 @@ setInterval(function(){
                 if(chasedPlayer.health <= 0){
                     delete players[playerId];
                 }
-                npc.speedCoeff = 0.01;
+                npc.speedCoeff = 0.01 * (1.4 + npc.animCoeff);
             }
         }else{
+            npc.animCoeff = 1.4 * Math.sin(npc.anim_t / (Math.PI * 0.8 * npc.natpace));
+            //console.log(npc.animCoeff);
+            if(Math.abs((npc.anim_t/(Math.PI * 0.8 * npc.natpace)) - Math.round(npc.anim_t/(Math.PI * 0.8 * npc.natpace))) < 1){
+                npc.stepmod = Math.random() * 0.3 + 0.85;
+                npc.wanderang += Math.PI / 12 * Math.random() - Math.PI / 12 * Math.random();
+                //console.log("stepmod");
+            }
+            npc.speedCoeff = 1.9 + npc.animCoeff;
             if(npc.wanderlust > 0){
                 npc.wanderlust--;
-                npc.x += Math.cos(npc.wanderang) * npspeed * timeDifference * 0.25 * npc.speedCoeff;
-                npc.y += Math.sin(npc.wanderang) * npspeed * timeDifference * 0.25 * npc.speedCoeff;
+                npc.x += Math.cos(npc.wanderang) * npspeed * timeDifference * 0.25 * npc.speedCoeff * npc.stepmod;
+                npc.y += Math.sin(npc.wanderang) * npspeed * timeDifference * 0.25 * npc.speedCoeff * npc.stepmod;
             }else{
                 npc.wanderlust = Math.floor(Math.random() * 1000) + 100;
                 var avgX = 0;

@@ -252,14 +252,14 @@ socket.on('state', function(actors){
     if(map != undefined){
         context.fillStyle = 'slategrey';
         for(var i = 0; i < map.buildings.length; i++){
-            context.globalAlpha = 1.0;    
+            context.globalAlpha = 0.3;    
             var building = map.buildings[i];
             //console.log((me.x > building.x && me.x < building.x + building.w) && (me.y > building.y && me.y < building.y + building.h));
             if(me != undefined){
                 if((me.x > building.x && me.x < building.x + building.w) && (me.y > building.y && me.y < building.y + building.h)){
                     context.globalAlpha = 0.3;
                 }else{
-                    context.globalAlpha = 1.0;
+                    context.globalAlpha = 0.3;
                 }
                 
             }
