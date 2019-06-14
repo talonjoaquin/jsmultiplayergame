@@ -12,46 +12,56 @@ var players = {};
 var ais = [];
 var corpses = [];
 var buildings = [];
+
+var rat = {
+    size: 6,
+    speed: 0.06,
+    health: 100
+};
+
 var rifle = {
-    reload: 4,
+    reload: 5,
     damage: 1.2,
-    speed: 1.4,
+    speed: 1.5,
     range: 100,
     bulletsize: 1,
     bullettrail: 8,
-    kickback: 2,
-    coneMod: 0,
-    spreadMod: 0
+    kickback: 1,
+    coneMod: 1,
+    spreadMod: 0,
+    id: 'rifle'
 };
 
 var shotgun = {
     reload: 80,
     damage: 2,
-    speed: 1.4,
+    speed: 2,
     range: 12,
-    bulletsize: 4,
-    bullettrail: 20,
-    kickback: 4,
+    bulletsize: 3,
+    bullettrail: 10,
+    kickback: 2,
     coneMod: 1,
-    spreadMod: 1
+    spreadMod: 1,
+    id: 'shotgun'
 };
 
 var flamethrower = {
-    reload: 2,
+    reload: 1,
     damage: 0.25,
-    speed: 0.4,
+    speed: 0.35,
     range: 30,
-    bulletsize: 1.5,
+    bulletsize: 1.25,
     bullettrail: 4,
     kickback: 0,
     coneMod: 0,
-    spreadMod: 2
+    spreadMod: 2,
+    id: 'flamethrower'
 }
 var cspeedmod = 1.5;
 var playerspeed = 0.12 * cspeedmod;
 var speedlim = 6;
 var push = -0.01;
-var npspeed = 0.11 * cspeedmod;
+var npspeed = 0.06 * cspeedmod;
 var NPCLIM = 200;
 var aggroRange = 300000;
 
@@ -77,12 +87,13 @@ for (var i = 0; i < NPCLIM; i++){
         wanderang: Math.random() * Math.PI * 2,
         health: 100,
         natspeed: 1.0,
-        aipackage: 'gloop',
+        class: rat,
         animCoeff: 1.0,
         anim_t: Math.random() * 1000,
         natpace: Math.random() * 0.5 + 0.75,
         stepmod: Math.random() * 0.3 + 0.85
     }
+    ais[i].health = ais[i].class.health;
     if(Math.random() > 0.5){
         ais[i].x = (Math.random() > 0.5 ? (Math.floor(5000 - 700 - 300 - Math.random() * 100)) : (Math.floor(5000 + 700 + 300 + Math.random() * 100)));
         ais[i].y = 5000 + Math.random() * 450 - Math.random() * 450;
@@ -104,7 +115,6 @@ var currY = 0;
 for (var iy = 0; iy < 20; iy++){
     for(var ix = 0; ix < 20; ix++){
         if(cityplan[ix + iy * 20]) {
-            console.log(currX + " " + currY);
             buildings.push({
                 x: currX,
                 y: currY,
@@ -145,7 +155,7 @@ io.on('connection', function(socket){
             mousey: 0,
             health: 100,
             shotcycle: 0,
-            gun: flamethrower,
+            gun: shotgun,
             bullets: [],
             speedCoeff: 1.0,
             pushx: 0,
@@ -204,19 +214,19 @@ setInterval(function(){
                 var bulletsize = 1.5 * (4 * 1.4 * player.gun.bulletsize * ((1.0 + player.gun.spreadMod * 2.0 * (player.gun.range - bullet.lifetime) / player.gun.range)));
                 if((bullet.y - npc.y) * (bullet.y - npc.y) + (bullet.x - npc.x)*(bullet.x - npc.x) < bulletsize * bulletsize){
                     npc.health -= player.gun.damage * timeDifference;
-                    npc.pushx += Math.cos(bullet.ang) * player.gun.kickback * 5;
-                    npc.pushy += Math.sin(bullet.ang) * player.gun.kickback * 5;
+                    npc.pushx += Math.cos(bullet.ang) * player.gun.kickback * 8;
+                    npc.pushy += Math.sin(bullet.ang) * player.gun.kickback * 8;
                     if(npc.health <= 0){
                         if(player.gun.kickback == 0){
-                            npc.pushx -= Math.cos(bullet.ang) * 8;
-                            npc.pushy -= Math.sin(bullet.ang) * 8;
+                            npc.pushx -= Math.cos(bullet.ang) * 4;
+                            npc.pushy -= Math.sin(bullet.ang) * 4;
                         }
                         corpses.push({
                             x: npc.x,
                             y: npc.y,
                             pushx: npc.pushx,
                             pushy: npc.pushy,
-                            aipackage: npc.aipackage,
+                            class: npc.class,
                             explosions: [{
                                 x: 0,
                                 y: 0,
@@ -248,12 +258,13 @@ setInterval(function(){
                             wanderang: Math.random() * Math.PI * 2,
                             health: 100,
                             natspeed: 1.0,
-                            aipackage: 'gloop',
+                            class: npc.class,
                             animCoeff: 1.0,
                             anim_t: 0,
                             natpace: Math.random() * 0.5 + 0.75,
                             stepmod: Math.random() * 0.3 + 0.85
                         };
+                        ais[i].health = ais[i].class.health;
                         var intheclear = false;
                         while(!intheclear){
                             intheclear = true;
@@ -279,19 +290,19 @@ setInterval(function(){
                 }else if((bullet.y - Math.sin(bullet.ang) * 2 * player.gun.bullettrail - npc.y) * (bullet.y - Math.sin(bullet.ang) * 2 * player.gun.bullettrail - npc.y) + (bullet.x - Math.cos(bullet.ang) * 2 * player.gun.bullettrail - npc.x)*(bullet.x - Math.cos(bullet.ang) * 2 * player.gun.bullettrail - npc.x) < bulletsize * bulletsize){
                     //ais.splice(id, 1);
                     npc.health -= player.gun.damage * timeDifference;
-                    npc.pushx += Math.cos(bullet.ang) * player.gun.kickback * 5;
-                    npc.pushy += Math.sin(bullet.ang) * player.gun.kickback * 5;
+                    npc.pushx += Math.cos(bullet.ang) * player.gun.kickback * 8;
+                    npc.pushy += Math.sin(bullet.ang) * player.gun.kickback * 8;
                     if(npc.health <= 0){
                         if(player.gun.kickback == 0){
-                            npc.pushx -= Math.cos(bullet.ang) * 8;
-                            npc.pushy -= Math.sin(bullet.ang) * 8;
+                            npc.pushx -= Math.cos(bullet.ang) * 4;
+                            npc.pushy -= Math.sin(bullet.ang) * 4;
                         }
                         corpses.push({
                             x: npc.x,
                             y: npc.y,
                             pushx: npc.pushx,
                             pushy: npc.pushy,
-                            aipackage: npc.aipackage,
+                            class: npc.class,
                             explosions: [{
                                 x: 0,
                                 y: 0,
@@ -322,12 +333,13 @@ setInterval(function(){
                             wanderang: Math.random() * Math.PI * 2,
                             health: 100,
                             natspeed: 1.0,
-                            aipackage: 'gloop',
+                            class: npc.class,
                             animCoeff: 1.0,
                             anim_t: 0,
                             natpace: Math.random() * 0.5 + 0.75,
                             stepmod: Math.random() * 0.3 + 0.85
                         };
+                        ais[i].health = ais[i].class.health;
                         var intheclear = false;
                         while(!intheclear){
                             intheclear = true;
@@ -374,8 +386,8 @@ setInterval(function(){
             npc.wanderlust = 0;
             var angleToPlayer = Math.atan2((chasedPlayer.y - npc.y), (chasedPlayer.x - npc.x));
             
-            npc.x += Math.cos(angleToPlayer) * npspeed * timeDifference * npc.speedCoeff * npc.stepmod;
-            npc.y += Math.sin(angleToPlayer) * npspeed * timeDifference * npc.speedCoeff * npc.stepmod;
+            npc.x += Math.cos(angleToPlayer) * npc.class.speed * cspeedmod * timeDifference * npc.speedCoeff * npc.stepmod;
+            npc.y += Math.sin(angleToPlayer) * npc.class.speed * cspeedmod * timeDifference * npc.speedCoeff * npc.stepmod;
             if(distToPlayer <= 16){
                 chasedPlayer.health -= 0.01 * timeDifference;
                 chasedPlayer.speedCoeff = 0.25;
@@ -397,8 +409,8 @@ setInterval(function(){
             npc.speedCoeff = 1.9 + npc.animCoeff;
             if(npc.wanderlust > 0){
                 npc.wanderlust--;
-                npc.x += Math.cos(npc.wanderang) * npspeed * timeDifference * 0.25 * npc.speedCoeff * npc.stepmod;
-                npc.y += Math.sin(npc.wanderang) * npspeed * timeDifference * 0.25 * npc.speedCoeff * npc.stepmod;
+                npc.x += Math.cos(npc.wanderang) * npc.class.speed * cspeedmod * timeDifference * 0.25 * npc.speedCoeff * npc.stepmod;
+                npc.y += Math.sin(npc.wanderang) * npc.class.speed * cspeedmod * timeDifference * 0.25 * npc.speedCoeff * npc.stepmod;
             }else{
                 npc.wanderlust = Math.floor(Math.random() * 1000) + 100;
                 var avgX = 0;
@@ -448,7 +460,7 @@ setInterval(function(){
         if(player.clicked){
             if (player.shotcycle == 0){
                 var bullet = {
-                    ang: Math.atan2(player.mousey - player.y, player.mousex - player.x) + Math.random() * Math.PI / 8 - Math.random() * Math.PI / 8,
+                    ang: Math.atan2(player.mousey - player.y, player.mousex - player.x) + Math.random() * Math.PI / 12 - Math.random() * Math.PI / 12,
                     x: 0,
                     y: 0,
                     speed: player.gun.speed,
@@ -498,8 +510,8 @@ setInterval(function(){
         if(Math.abs(corpses[i].pushx) > 1 && Math.abs(corpses[i].pushy) > 1){
             corpses[i].x += corpses[i].pushx;
             corpses[i].y += corpses[i].pushy;
-            corpses[i].pushx *= 0.85;
-            corpses[i].pushy *= 0.85;
+            corpses[i].pushx *= 0.98;
+            corpses[i].pushy *= 0.98;
             
         }
         var noexplo = false;
@@ -510,7 +522,7 @@ setInterval(function(){
                     
                     if(!ex.triggered && Math.abs(corpses[i].pushx) > 1 && Math.abs(corpses[i].pushy) > 1){
                         noexplo = false;
-                        ex.triggered = Math.random() > 0.97;
+                        ex.triggered = Math.random() > 0.3;
                         if(ex.triggered){
                             ex.x = corpses[i].x;
                             ex.y = corpses[i].y;

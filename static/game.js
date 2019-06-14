@@ -91,7 +91,7 @@ socket.on('map', function(data){
 });
 socket.on('state', function(actors){
     context.clearRect(0, 0, 1400, 900);
-    context.fillStyle = 'lightgrey';
+    context.fillStyle = 'black';
     context.fillRect(0, 0, 1400, 900);
     
     var me = actors.pcs[meid];
@@ -106,8 +106,8 @@ socket.on('state', function(actors){
         }else{
             tilty = Math.abs(me.pushy) / me.pushy;
         }
-        camera.x += (me.x - 700 - (me.pushx) * 100 - shakex - camera.x) * camera.lerp;
-        camera.y += (me.y - 450 - (me.pushy) * 100 - shakey - camera.y) * camera.lerp;
+        camera.x += (me.x - 700 - camera.x) * camera.lerp;
+        camera.y += (me.y - 450 - camera.y) * camera.lerp;
         shakex *= 0.8;
         shakey *= 0.8;
     }
@@ -119,12 +119,12 @@ socket.on('state', function(actors){
         context.globalAlpha = 1.0;
         
         //context.drawRect(npc.x - camera.x, npc.y - camera.y, actorSize * 2, actorSize * 2);
-        context.fillStyle = 'black';
-        context.fillRect(npc.x - camera.x - 2, npc.y - camera.y - 2, actorSize+ 4, actorSize + 4);
+        context.fillStyle = 'lightgrey';
+        context.fillRect(npc.x - camera.x - 2, npc.y - camera.y - 2, npc.class.size * sizeMod + 4, npc.class.size * sizeMod + 4);
 
-        context.fillStyle = 'slategray';
+        context.fillStyle = 'darkgreen';
         //context.fill();
-        context.fillRect(npc.x - camera.x, npc.y - camera.y, actorSize, actorSize);
+        context.fillRect(npc.x - camera.x, npc.y - camera.y, npc.class.size * sizeMod, npc.class.size * sizeMod);
         
     }
     for (var id in actors.bodies){
@@ -132,12 +132,12 @@ socket.on('state', function(actors){
         context.globalAlpha = 1.0;
         
         //context.drawRect(npc.x - camera.x, npc.y - camera.y, actorSize * 2, actorSize * 2);
-        context.fillStyle = 'black';
-        context.fillRect(corpse.x - camera.x - 2, corpse.y - camera.y - 2, actorSize+ 4, actorSize + 4);
+        context.fillStyle = 'lightgrey';
+        context.fillRect(corpse.x - camera.x - 2, corpse.y - camera.y - 2, npc.class.size * sizeMod + 4, npc.class.size * sizeMod + 4);
 
-        context.fillStyle = 'black';
+        context.fillStyle = 'white';
         //context.fill();
-        context.fillRect(corpse.x - camera.x, corpse.y - camera.y, actorSize, actorSize);
+        context.fillRect(corpse.x - camera.x, corpse.y - camera.y, npc.class.size * sizeMod, npc.class.size * sizeMod);
         //console.log(corpse.explosions);
         
     }
@@ -160,7 +160,7 @@ socket.on('state', function(actors){
                 continue;
             }
             //console.log(bullet.flash);
-            if(bullet.flash > 0){
+            if(bullet.flash > 0 && player.gun.id != 'flamethrower'){
                 context.fillStyle = 'white';
                 context.globalAlpha = 1.0;
                 context.beginPath();
