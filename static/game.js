@@ -133,11 +133,11 @@ socket.on('state', function(actors){
         
         //context.drawRect(npc.x - camera.x, npc.y - camera.y, actorSize * 2, actorSize * 2);
         context.fillStyle = 'lightgrey';
-        context.fillRect(corpse.x - camera.x - 2, corpse.y - camera.y - 2, npc.class.size * sizeMod + 4, npc.class.size * sizeMod + 4);
+        context.fillRect(corpse.x - camera.x - 2, corpse.y - camera.y - 2, corpse.class.size * sizeMod + 4, corpse.class.size * sizeMod + 4);
 
         context.fillStyle = 'white';
         //context.fill();
-        context.fillRect(corpse.x - camera.x, corpse.y - camera.y, npc.class.size * sizeMod, npc.class.size * sizeMod);
+        context.fillRect(corpse.x - camera.x, corpse.y - camera.y, corpse.class.size * sizeMod, corpse.class.size * sizeMod);
         //console.log(corpse.explosions);
         
     }
